@@ -14,7 +14,9 @@ ayRequest1.reque({
       console.log('调用自定义实例1的reque的请求拦截')
       return config
     }
-  } 
+  },
+  //自定义功能
+  showLoading: true
 })
 
 // ayRequest2.reque({})

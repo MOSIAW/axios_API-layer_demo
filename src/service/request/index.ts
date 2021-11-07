@@ -2,19 +2,25 @@ import axios from 'axios'   //这样封装,如果到时候需要修改引入的�
 import { AxiosInstance } from 'axios'
 import { AYRequestInterceptors, AYRequestConfig } from './type'
 
+import { ElLoading, ILoadingInstance } from 'element-plus'
+
 // class XRequest{    //这样封装外部就可以调用 XRequest.get()
 //   get() {}
 //   request() {}
 // }
 
+//常量一般大写 
+const LOADING = false
 
 class AYRequest{
   instance: AxiosInstance    //AxiosInstance是继承Axios
   interceptors?: AYRequestInterceptors
+  loading?: ILoadingInstance
+  showLoading: boolean
 
   constructor(config: AYRequestConfig) {
     this.instance = axios.create(config)
-
+    this.showLoading = config.showLoading ?? false
     //把所有传进来的interceptors保存到this
     this.interceptors = config.freeInterceptors
 
@@ -27,15 +33,25 @@ class AYRequest{
     )
     this.instance.interceptors.response.use(
       this.interceptors?.responseInterceptor,
-      this.interceptors?.reSponseInterceptorCatch
+      this.interceptors?.responseInterceptorCatch
     )
 
 //------------------全局的拦截-------------------
     //添加所有实例的拦截器,这个是axios封装的
     this.instance.interceptors.request.use(
-      (res) => {
+      (config) => {
         console.log('axios请求拦截')
-        return res.data
+
+        if(this.showLoading) {
+          //页面无效果,不知道原因
+          this.loading = ElLoading.service({
+            lock: true,
+            text: "请求中...",
+            background: 'rgba(0, 0, 0, 0.5)'
+          })
+        }
+        
+        return config
       },
       (err) => {
         return err
@@ -46,6 +62,12 @@ class AYRequest{
     this.instance.interceptors.response.use(
       (res) => {
         console.log('axios响应拦截')
+
+        //setTimeout调试用 取消loading状态
+        setTimeout(() => {
+          this.loading?.close()
+        }, 1000);
+        
         
         //错误情况2：后端返回的returnCode
         const data = res.data
@@ -73,7 +95,7 @@ class AYRequest{
     )
   }
 
-//------------------具体请求的拦截-------------------
+//------------------单个请求的拦截-------------------
   //自定义
   reque(config: AYRequestConfig): void {
     //把拦截下来的config修改之后重新赋值
@@ -81,11 +103,25 @@ class AYRequest{
       config = config.freeInterceptors?.requestInterceptor(config)
     }
 
+    if(config.showLoading === true) {
+      this.showLoading = config.showLoading
+    }
+
+
     //相当于axios.request()  这是别名,用别名url、method、data 这些属性都不必在配置中指定
-    this.instance.request(config).then((res) => {
-      console.log('封装在构造函数里的自定义reque请求');
-      console.log(res)
-    })
+    this.instance
+      .request(config)
+      .then((res) => {
+        console.log('封装在构造函数里的自定义reque请求');
+        console.log(res)
+
+        //每次请求完再设置为初始化值
+        this.showLoading = false
+      })
+      .catch((err) => {
+        this.showLoading = false
+        return err
+      })
   }
 }
 

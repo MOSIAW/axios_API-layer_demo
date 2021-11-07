@@ -11,10 +11,11 @@ export interface AYRequestInterceptors {
   requestInterceptorCatch?: (error: any) => any
 
   responseInterceptor?: (config: AxiosResponse) => AxiosResponse
-  reSponseInterceptorCatch?: (error: any) => any
+  responseInterceptorCatch?: (error: any) => any
 }
 
 //自定义配置
 export interface AYRequestConfig extends AxiosRequestConfig {
-  freeInterceptors?: AYRequestInterceptors
+  freeInterceptors?: AYRequestInterceptors,
+  showLoading?: boolean
 }
