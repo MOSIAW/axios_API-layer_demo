@@ -11,11 +11,11 @@ ayRequest1.reque({
   method: 'GET',
   freeInterceptors: {
     requestInterceptor: (config) => {
-      console.log('调用1的reque的请求拦截')
+      console.log('调用自定义实例1的reque的请求拦截')
       return config
     }
   } 
 })
 
-ayRequest2.reque({})
+// ayRequest2.reque({})
 

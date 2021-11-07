@@ -6,15 +6,15 @@ export const ayRequest1 = new AYRequest({
   timeout: TIME_OUT,
   freeInterceptors: {
     requestInterceptor: (config) => {
-      console.log('实例1的请求拦截');
+      console.log('实例1的自定义请求拦截');
       return config
     },
     requestInterceptorCatch: (config) => {
-      console.log('实例1的请求错误')
+      console.log('实例1的自定义请求错误')
       return config
     },
     responseInterceptor: (config) => {
-      console.log('实例1的响应拦截')
+      console.log('实例1的自定义响应拦截')
       return config
     },
   }
@@ -25,11 +25,11 @@ export const ayRequest2 = new AYRequest({
   timeout: TIME_OUT,
   freeInterceptors: {
     requestInterceptor: (config) => {
-      console.log('实例2的请求拦截')
+      console.log('实例2的自定义请求拦截')
       return config
     },
     responseInterceptor: (config) => {
-      console.log('实例2的响应拦截')
+      console.log('实例2的自定义响应拦截')
       return config
     }
   }
