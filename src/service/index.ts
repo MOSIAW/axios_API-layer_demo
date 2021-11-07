@@ -6,6 +6,16 @@ export const ayRequest1 = new AYRequest({
   timeout: TIME_OUT,
   freeInterceptors: {
     requestInterceptor: (config) => {
+
+      //请求就是config 配置
+      const token = ''
+      if(token) {
+        //headers.Authorization 请求头
+        //Bearer: 信使 一般token携带的
+        config.headers.Authorization = `Bearer ${token}`
+      }
+
+
       console.log('实例1的自定义请求拦截');
       return config
     },
@@ -15,6 +25,10 @@ export const ayRequest1 = new AYRequest({
     },
     responseInterceptor: (config) => {
       console.log('实例1的自定义响应拦截')
+      return config
+    },
+    responseInterceptorCatch: (config) => {
+      console.log('实例1的自定义响应错误')
       return config
     },
   }

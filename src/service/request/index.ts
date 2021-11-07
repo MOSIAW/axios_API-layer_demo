@@ -33,28 +33,48 @@ class AYRequest{
 //------------------全局的拦截-------------------
     //添加所有实例的拦截器,这个是axios封装的
     this.instance.interceptors.request.use(
-      (config) => {
+      (res) => {
         console.log('axios请求拦截')
-        return config
+        return res.data
       },
       (err) => {
         return err
       }
     )
 
+    //HTTP 4xx 5xx错误码 在这里拦截  err.response.status
     this.instance.interceptors.response.use(
-      (config) => {
+      (res) => {
         console.log('axios响应拦截')
-        return config
+        
+        //错误情况2：后端返回的returnCode
+        const data = res.data
+        if(data.returnCode === -1001) {
+          //TODO
+        } else {
+          return data
+        }
+
+        // 由于axios自动给请求信息封装，我们需要拿到其中的data属性
+        return res.data
       },
       (err) => {
+        //错误情况1：HttpErrorCode
+        switch(err.response.status) {
+          case 404: 
+            console.log("404错误")
+            break
+          case 500:
+            console.log("500错误")
+            break
+        }
         return err
       }
     )
   }
 
-
 //------------------具体请求的拦截-------------------
+  //自定义
   reque(config: AYRequestConfig): void {
     //把拦截下来的config修改之后重新赋值
     if(config.freeInterceptors?.requestInterceptor) {
