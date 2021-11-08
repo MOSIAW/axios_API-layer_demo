@@ -97,31 +97,49 @@ class AYRequest{
 
 //------------------单个请求的拦截-------------------
   //自定义
-  reque(config: AYRequestConfig): void {
-    //把拦截下来的config修改之后重新赋值
-    if(config.freeInterceptors?.requestInterceptor) {
-      config = config.freeInterceptors?.requestInterceptor(config)
-    }
+  req<T>(config: AYRequestConfig): Promise<T> {
+    return new Promise((resolve, reject) => {
+      //把拦截下来的config修改之后重新赋值
+      if(config.freeInterceptors?.requestInterceptor) {
+        config = config.freeInterceptors?.requestInterceptor(config)
+      }
 
-    if(config.showLoading === true) {
-      this.showLoading = config.showLoading
-    }
+      if(config.showLoading === true) {
+        this.showLoading = config.showLoading
+      }
 
 
-    //相当于axios.request()  这是别名,用别名url、method、data 这些属性都不必在配置中指定
-    this.instance
-      .request(config)
-      .then((res) => {
-        console.log('封装在构造函数里的自定义reque请求');
-        console.log(res)
+      //相当于axios.request()  axios.get() axios.delete()等都是别名,用别名的话url、method、data这些属性都不必在配置中指定
+      this.instance
+        //由于上面res返回了res.data,并不是AxiosResponse类型了, request本身有三个泛型,这里修改了第二个
+        .request<any, T>(config)
+        .then((res) => {
+          console.log('封装在构造函数里的自定义reque请求');
+          resolve(res)
 
-        //每次请求完再设置为初始化值
-        this.showLoading = false
-      })
-      .catch((err) => {
-        this.showLoading = false
-        return err
-      })
+          //每次请求完再设置为初始化值
+          this.showLoading = false
+        })
+        .catch((err) => {
+
+          this.showLoading = false
+          reject(err)
+          return err
+        })
+    })
+    
+  }
+  get<T>(config: AYRequestConfig): Promise<T> {
+    return this.req<T>({...config, method: "GET"})
+  }
+  delete<T>(config: AYRequestConfig): Promise<T> {
+    return this.req<T>({...config, method: "DELETE"})
+  }
+  post<T>(config: AYRequestConfig): Promise<T> {
+    return this.req<T>({...config, method: "POST"})
+  }
+  patch<T>(config: AYRequestConfig): Promise<T> {
+    return this.req<T>({...config, method: "PATCH"})
   }
 }
 

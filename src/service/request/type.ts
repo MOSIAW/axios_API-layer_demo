@@ -9,8 +9,8 @@ export interface AYRequestInterceptors {
   requestInterceptor?: (config: AxiosRequestConfig) => AxiosRequestConfig
   //错误拦截 catch,  use中给error就是any类型
   requestInterceptorCatch?: (error: any) => any
-
-  responseInterceptor?: (config: AxiosResponse) => AxiosResponse
+  //res在后来劫持定义为res.data, 并不是AxiosResponse类型了
+  responseInterceptor?: (res: any) => any
   responseInterceptorCatch?: (error: any) => any
 }
 
