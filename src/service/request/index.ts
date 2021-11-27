@@ -68,7 +68,8 @@ class AYRequest{
           this.loading?.close()
         }, 1000);
         
-        
+        //可以封装checkstatus,显示不同错误
+
         //错误情况2：后端返回的returnCode
         const data = res.data
         if(data.returnCode === -1001) {
@@ -97,7 +98,7 @@ class AYRequest{
 
 //------------------单个请求的拦截-------------------
   //自定义
-  req<T>(config: AYRequestConfig): Promise<T> {
+  req<T>(config: AYRequestConfig<T>): Promise<T> {
     return new Promise((resolve, reject) => {
       //把拦截下来的config修改之后重新赋值
       if(config.freeInterceptors?.requestInterceptor) {
@@ -108,13 +109,15 @@ class AYRequest{
         this.showLoading = config.showLoading
       }
 
-
       //相当于axios.request()  axios.get() axios.delete()等都是别名,用别名的话url、method、data这些属性都不必在配置中指定
       this.instance
         //由于上面res返回了res.data,并不是AxiosResponse类型了, request本身有三个泛型,这里修改了第二个
         .request<any, T>(config)
         .then((res) => {
           console.log('封装在构造函数里的自定义reque请求');
+          if(config.freeInterceptors?.responseInterceptor) {
+            res = config.freeInterceptors?.responseInterceptor(res)
+          }
           resolve(res)
 
           //每次请求完再设置为初始化值
@@ -129,16 +132,16 @@ class AYRequest{
     })
     
   }
-  get<T>(config: AYRequestConfig): Promise<T> {
+  get<T>(config: AYRequestConfig<T>): Promise<T> {
     return this.req<T>({...config, method: "GET"})
   }
-  delete<T>(config: AYRequestConfig): Promise<T> {
+  delete<T>(config: AYRequestConfig<T>): Promise<T> {
     return this.req<T>({...config, method: "DELETE"})
   }
-  post<T>(config: AYRequestConfig): Promise<T> {
+  post<T>(config: AYRequestConfig<T>): Promise<T> {
     return this.req<T>({...config, method: "POST"})
   }
-  patch<T>(config: AYRequestConfig): Promise<T> {
+  patch<T>(config: AYRequestConfig<T>): Promise<T> {
     return this.req<T>({...config, method: "PATCH"})
   }
 }
